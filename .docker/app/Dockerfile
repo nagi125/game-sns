@@ -5,7 +5,8 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 
 # install Lib
 RUN apk update && \
-    apk add --no-cache --virtual .php-builds oniguruma-dev postgresql-dev git curl zip unzip
+apk add --no-cache --virtual .php-builds oniguruma-dev postgresql-dev nodejs npm git curl zip unzip && \
+npm install npm@latest -g
 
 # add php,apache-module
 RUN docker-php-ext-install mbstring pdo pdo_pgsql && \
