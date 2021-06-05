@@ -16,6 +16,8 @@
         "postcss": "^8.1.14"
     },
     "dependencies": {
-        "bootstrap": "^5.0.1"
+        "bootstrap": "^5.0.1",
+        "sass": "^1.34.1",
+        "sass-loader": "^12.0.0"
     }
 }
