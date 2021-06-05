@@ -11,7 +11,7 @@ services:
       - .:/app
     tty: true
     depends_on:
-      - api
+      - game-app
 
   game-app:
     container_name: game-app
@@ -27,11 +27,11 @@ services:
       - 9000
     tty: true
     depends_on:
-      - db
+      - game-db
 
   game-db:
     image: postgres:12-alpine
-    container_name: sample-spa-db
+    container_name: game-db
     environment:
       TZ: 'Asia/Tokyo'
       POSTGRES_USER: 'docker'
