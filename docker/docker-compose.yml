@@ -3,12 +3,12 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: .docker/nginx
+      context: ./nginx
       dockerfile: Dockerfile
     ports:
       - 80:80
     volumes:
-      - .:/app
+      - ../src:/app
     tty: true
     depends_on:
       - app
@@ -16,7 +16,7 @@ services:
   app:
     container_name: app
     build:
-      context: .docker/app
+      context: ./app
       dockerfile: Dockerfile
     environment:
       LANG: 'ja_JP.UTF-8'
@@ -40,9 +40,9 @@ services:
       MAIL_PASSWORD: 'null'
       MAIL_ENCRYPTION: 'null'
     env_file:
-      - .env
+      - ../src/.env
     volumes:
-      - .:/app
+      - ../src:/app
     expose:
       - 9000
     tty: true
@@ -58,8 +58,8 @@ services:
       POSTGRES_PASSWORD: 'docker'
       POSTGRES_DB: 'laravel_development'
     volumes:
-      - ./.docker/db/data:/var/lib/postgresql/data
-      - ./.docker/db/sql:/docker-entrypoint-initdb.d
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/sql:/docker-entrypoint-initdb.d
     ports:
       - 5432:5432
 
