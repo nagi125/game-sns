@@ -1,0 +1,5 @@
+# Docker
+.docker/db/data
+
+# IDE
+.idea 

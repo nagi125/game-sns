@@ -1,0 +1,48 @@
+version: '3'
+services:
+  game-nginx:
+    container_name: game-nginx
+    build:
+      context: .docker/nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - .:/app
+    tty: true
+    depends_on:
+      - api
+
+  game-app:
+    container_name: game-app
+    build:
+      context: .docker/app
+      dockerfile: Dockerfile
+    environment:
+      LANG: 'ja_JP.UTF-8'
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - .:/app
+    expose:
+      - 9000
+    tty: true
+    depends_on:
+      - db
+
+  game-db:
+    image: postgres:12-alpine
+    container_name: sample-spa-db
+    environment:
+      TZ: 'Asia/Tokyo'
+      POSTGRES_USER: 'docker'
+      POSTGRES_PASSWORD: 'docker'
+      POSTGRES_DB: 'laravel_development'
+    volumes:
+      - ./.docker/db/data:/var/lib/postgresql/data
+      - ./.docker/db/sql:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
+networks:
+  default:
+    name: game-sns
