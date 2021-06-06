@@ -14,17 +14,27 @@ class RedirectIfAuthenticated
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
-     * @param  string|null  ...$guards
+     * @param  string|null  $guard
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, ...$guards)
+    public function handle($request, Closure $next, $guard = null)
     {
-        $guards = empty($guards) ? [null] : $guards;
+        $redirectTo = '/';
+        $prefix = $request->segment(1);
 
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
-            }
+        switch ($prefix) {
+            case 'admin':
+                $guard = 'admin';
+                $redirectTo = '/admin/dashboard';
+                break;
+            default:
+                $guard = 'web';
+                $redirectTo = '/';
+                break;
+        }
+
+        if (Auth::guard($guard)->check()) {
+            return redirect($redirectTo);
         }
 
         return $next($request);
