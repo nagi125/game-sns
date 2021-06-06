@@ -1,6 +1,12 @@
 ## IDE
 .idea
 
-## Docker関連
-docker/db/*
+# SRC
+/src/public/js
+/src/public/css
+/src/public/mix-manifest.json
+/src/_ide_*.php
+
+# Docker
+/docker/.env
 
