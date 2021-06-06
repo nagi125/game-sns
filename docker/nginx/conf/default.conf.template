@@ -1,0 +1,59 @@
+server {
+    listen 80;
+    server_name ${PROJECT_DOMAIN};
+
+    root /${PROJECT_NAME}/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    set $my_ssl "off";
+    if ($http_x_forwarded_proto = "https") {
+        set $my_ssl "on";
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass   ${APP_CONTAINER}:9000;
+        fastcgi_index  index.php;
+
+        fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param HTTPS $my_ssl;
+        include       fastcgi_params;
+    }
+}
+
+server {
+    client_max_body_size 100M;
+    server_name schema.${PROJECT_DOMAIN};
+    listen 80;
+    root /${SCHEMASPY_PREFIX};
+
+    add_header X-Frame-Options "DENY";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+
+    server_tokens off;
+
+    index index.html;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.html$is_args$args;
+    }
+
+    error_page 404 = @top;
+    location @top {
+      return 301 /;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
