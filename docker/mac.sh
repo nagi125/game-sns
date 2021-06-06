@@ -59,7 +59,7 @@ LOCAL_NODE_DIR="${LOCAL_APP_DIR}/node_modules"
 
 case "$1" in
 "create")
-# イメージ、データボリュームの全消し。最初からやり直す場合に使用する。
+  # イメージ、データボリュームの全消し。最初からやり直す場合に使用する。
   docker-compose down --rmi all --volumes --remove-orphans
 
   rm -rf ${LOCAL_VENDOR_DIR}
@@ -109,7 +109,7 @@ case "$1" in
   ;;
 
 "down")
-# docker compose down
+# docker compose down を行う処理
   docker compose down
   docker container prune -f
   docker image prune -f
@@ -118,24 +118,29 @@ case "$1" in
   ;;
 
 "composer")
+  # composer周りの処理で使うコマンド
   rm -rf ${LOCAL_VENDOR_DIR}
   ${RUN_APP} composer "${@:2}"
   docker cp ${APP}:${REMOTE_VENDOR_DIR} ${LOCAL_APP_DIR}
   ;;
 
 "logs")
+  # ログを出力するコマンド
   docker-compose logs -f
   ;;
 
 "app")
+  # PHPコンテナに入るためのコマンド
   docker exec -it ${APP} sh
   ;;
 
 "web")
+  # NGINXコンテナに入るためのコマンド
   docker exec -it ${WEB} sh
   ;;
 
 "ide")
+  # laravel ide のファイルを出力するためのコマンド
   ${RUN_APP} ./artisan ide-helper:generate
   ${RUN_APP} ./artisan ide-helper:models --nowrite
   docker cp ${APP}:${REMOTE_APP_DIR}/_ide_helper.php ${LOCAL_APP_DIR}
@@ -143,6 +148,7 @@ case "$1" in
   ;;
 
 "schema")
+  # schemaspyを更新するためのコマンド
   ${RUN_SCHEMA} java -jar schemaspy.jar \
       -o /output -t pgsql \
       -u "${DB_USER}" \
