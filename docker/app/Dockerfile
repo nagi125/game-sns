@@ -1,24 +1,27 @@
+FROM composer as build
+ENV DOCKERIZE_VERSION=v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+ && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+ && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
 FROM php:8.0-fpm-alpine
 
 ENV TZ Asia/Tokyo
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# install Lib
-RUN apk update && \
-apk add --no-cache --virtual .php-builds oniguruma-dev postgresql-dev nodejs npm git curl zip unzip && \
-npm install npm@latest -g
+COPY --from=build /usr/bin/composer /usr/bin/composer
+COPY --from=build /usr/local/bin/dockerize /usr/bin/dockerize
 
-# add php,apache-module
-RUN docker-php-ext-install mbstring pdo pdo_pgsql && \
-    docker-php-ext-enable mbstring
+# package install and setup
+RUN set -eux \
+ && apk add --update-cache --no-cache openssl git autoconf g++ nodejs npm yarn postgresql-dev libtool make libzip-dev libpng-dev libjpeg-turbo-dev freetype-dev \
+ && pecl install redis \
+ && docker-php-ext-configure gd --with-jpeg=/usr \
+ && docker-php-ext-configure opcache --enable-opcache \
+ && docker-php-ext-install gd pdo_pgsql pgsql opcache bcmath gd exif zip \
+ && docker-php-ext-enable redis \
+ && apk del autoconf g++ libtool make && rm -rf /tmp/*
 
-COPY conf/php.ini /usr/local/etc/php/php.ini
-COPY conf/docker.conf /usr/local/etc/php-fpm.d/docker.conf
-
-# install Composer
-RUN curl -sS https://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer && \
-    chmod +x /usr/local/bin/composer
-
-WORKDIR /app
-
+# project
+ARG PROJECT_NAME
+COPY ./src/storage /$PROJECT_NAME/storage
